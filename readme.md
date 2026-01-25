@@ -1,10 +1,16 @@
 # Skills Matrix K-Means
 
-A simple command-line tool to cluster entities (e.g., people) based on a skills matrix using the K-Means algorithm.
+A command-line tool that leverages the K-Means algorithm to cluster entities (such as team members or job candidates) based on their skills matrix.
 
-## Description
+## Why use this tool?
 
-This tool reads a CSV file containing a skills matrix where the first column is an identifier (e.g., Name) and subsequent columns represent skill levels (e.g., 1-5). It then groups these entities into `k` clusters based on the similarity of their skill profiles.
+Clustering skill profiles can uncover patterns in your workforce or candidate pool that aren't immediately obvious from raw data.
+
+### Use Cases
+
+*   **Team Formation**: ensuring agile squads have a balanced mix of skills by identifying different developer archetypes (e.g., "Frontend Specialists", "Backend Specialists", "Generalists").
+*   **Learning & Development**: Grouping employees with similar skill gaps to provide targeted training sessions.
+*   **Recruitment Analysis**: Categorizing candidates into buckets to see which roles are easiest or hardest to fill based on the current pipeline.
 
 ## Installation
 
@@ -28,40 +34,81 @@ go build -o skills-kmeans ./cmd/skills-kmeans
 - `-k`: Number of clusters (default: 3).
 - `-out`: Path to the output JSON file. If omitted, prints to stdout.
 
-### Example CSV (`data.csv`)
+## Detailed Example
+
+### Scenario
+
+Imagine you have a list of developers with self-assessed scores (1-5) for various technologies. You want to group them into 2 clusters to identify the primary "Backend" and "Frontend" groups.
+
+### 1. Prepare Data (`skills.csv`)
 
 ```csv
-Name,Go,Python,SQL,Communication
-Alice,5,3,4,4
-Bob,2,5,3,3
-Charlie,4,2,5,2
-Diana,1,5,2,4
-Eve,5,4,4,5
-Frank,2,2,2,2
+Name,Go,Python,React,SQL,CSS
+Alice,5,4,1,5,2
+Bob,4,5,2,4,1
+Charlie,1,2,5,2,5
+Diana,2,1,4,1,4
+Eve,3,3,3,3,3
 ```
 
-### Running the example
+### 2. Run the Tool
 
 ```bash
-./skills-kmeans -file data.csv -k 2
+./skills-kmeans -file skills.csv -k 2
 ```
 
-## Output
+### 3. Analyze Output
 
-The output is a JSON representation of the clusters, showing the centroid (average skill profile of the cluster) and the points (entities) belonging to that cluster.
+The tool outputs a JSON array where each object is a cluster containing a `Centroid` (the "average" profile of that cluster) and the list of `Points` (people) in that cluster.
 
 ```json
 [
   {
-    "Centroid": [ ... ],
+    "Centroid": [
+      2,
+      2,
+      4,
+      2,
+      4
+    ],
+    "Points": [
+      {
+        "ID": "Charlie",
+        "Vector": [1, 2, 5, 2, 5]
+      },
+      {
+        "ID": "Diana",
+        "Vector": [2, 1, 4, 1, 4]
+      },
+      {
+        "ID": "Eve",
+        "Vector": [3, 3, 3, 3, 3]
+      }
+    ]
+  },
+  {
+    "Centroid": [
+      4.5,
+      4.5,
+      1.5,
+      4.5,
+      1.5
+    ],
     "Points": [
       {
         "ID": "Alice",
-        "Vector": [5, 3, 4, 4]
+        "Vector": [5, 4, 1, 5, 2]
       },
-      ...
+      {
+        "ID": "Bob",
+        "Vector": [4, 5, 2, 4, 1]
+      }
     ]
-  },
-  ...
+  }
 ]
 ```
+
+**Interpretation:**
+
+*   **Cluster 1 (Top)**: The centroid has high values for the 3rd and 5th skills (React, CSS). This group contains Charlie, Diana, and Eve (who is a generalist but closer to this group). This represents the **Frontend/Fullstack** group.
+*   **Cluster 2 (Bottom)**: The centroid has high values for the 1st, 2nd, and 4th skills (Go, Python, SQL). This group contains Alice and Bob. This represents the **Backend** group.
