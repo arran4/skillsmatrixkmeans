@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 
@@ -30,16 +31,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	points, headers, err := readCSV(*inputFile)
-	if err != nil {
-		fmt.Printf("Error reading CSV: %v\n", err)
+	if err := run(*inputFile, *outputFile, *k, nil); err != nil {
+		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
+}
 
-	clusters, err := kmeans.KMeans(points, *k, 100)
+func run(inputFile, outputFile string, k int, rng *rand.Rand) error {
+	points, headers, err := readCSV(inputFile)
 	if err != nil {
-		fmt.Printf("Error running K-Means: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("reading CSV: %w", err)
+	}
+
+	clusters, err := kmeans.KMeans(points, k, 100, rng)
+	if err != nil {
+		return fmt.Errorf("running K-Means: %w", err)
 	}
 
 	var outputClusters []OutputCluster
@@ -66,20 +72,19 @@ func main() {
 
 	output, err := json.MarshalIndent(outputClusters, "", "  ")
 	if err != nil {
-		fmt.Printf("Error marshaling output: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("marshaling output: %w", err)
 	}
 
-	if *outputFile != "" {
-		err := os.WriteFile(*outputFile, output, 0644)
+	if outputFile != "" {
+		err := os.WriteFile(outputFile, output, 0644)
 		if err != nil {
-			fmt.Printf("Error writing to output file: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("writing to output file: %w", err)
 		}
-		fmt.Printf("Clustering complete. Results written to %s\n", *outputFile)
+		fmt.Printf("Clustering complete. Results written to %s\n", outputFile)
 	} else {
 		fmt.Println(string(output))
 	}
+	return nil
 }
 
 func readCSV(filename string) ([]kmeans.Point, []string, error) {

@@ -37,7 +37,7 @@ func TestKMeans(t *testing.T) {
 	}
 
 	k := 2
-	clusters, err := KMeans(points, k, 10)
+	clusters, err := KMeans(points, k, 10, nil)
 	if err != nil {
 		t.Fatalf("KMeans failed: %v", err)
 	}

@@ -22,7 +22,8 @@ type Cluster struct {
 // data: slice of points to cluster.
 // k: number of clusters.
 // maxIter: maximum number of iterations.
-func KMeans(data []Point, k int, maxIter int) ([]Cluster, error) {
+// rng: random number generator source (optional, uses global rand if nil).
+func KMeans(data []Point, k int, maxIter int, rng *rand.Rand) ([]Cluster, error) {
 	if k <= 0 {
 		return nil, nil
 	}
@@ -32,7 +33,13 @@ func KMeans(data []Point, k int, maxIter int) ([]Cluster, error) {
 
 	// Initialize centroids randomly
 	centroids := make([][]float64, k)
-	perm := rand.Perm(len(data))
+	var perm []int
+	if rng != nil {
+		perm = rng.Perm(len(data))
+	} else {
+		perm = rand.Perm(len(data))
+	}
+
 	for i := 0; i < k; i++ {
 		centroids[i] = make([]float64, len(data[perm[i]].Vector))
 		copy(centroids[i], data[perm[i]].Vector)
