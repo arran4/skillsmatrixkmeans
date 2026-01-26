@@ -15,6 +15,7 @@ type Point struct {
 type Cluster struct {
 	Centroid []float64
 	Points   []Point
+	Cohesion float64
 }
 
 // KMeans performs the K-Means clustering algorithm.
@@ -89,6 +90,19 @@ func KMeans(data []Point, k int, maxIter int) ([]Cluster, error) {
 		if converged {
 			break
 		}
+	}
+
+	// Calculate cohesion for each cluster
+	for i := range clusters {
+		if len(clusters[i].Points) == 0 {
+			clusters[i].Cohesion = 0
+			continue
+		}
+		totalDist := 0.0
+		for _, p := range clusters[i].Points {
+			totalDist += euclideanDistance(p.Vector, clusters[i].Centroid)
+		}
+		clusters[i].Cohesion = totalDist / float64(len(clusters[i].Points))
 	}
 
 	return clusters, nil
