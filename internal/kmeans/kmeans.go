@@ -15,13 +15,15 @@ type Point struct {
 type Cluster struct {
 	Centroid []float64
 	Points   []Point
+	Cohesion float64
 }
 
 // KMeans performs the K-Means clustering algorithm.
 // data: slice of points to cluster.
 // k: number of clusters.
 // maxIter: maximum number of iterations.
-func KMeans(data []Point, k int, maxIter int) ([]Cluster, error) {
+// rng: random number generator source (optional, uses global rand if nil).
+func KMeans(data []Point, k int, maxIter int, rng *rand.Rand) ([]Cluster, error) {
 	if k <= 0 {
 		return nil, nil
 	}
@@ -31,7 +33,13 @@ func KMeans(data []Point, k int, maxIter int) ([]Cluster, error) {
 
 	// Initialize centroids randomly
 	centroids := make([][]float64, k)
-	perm := rand.Perm(len(data))
+	var perm []int
+	if rng != nil {
+		perm = rng.Perm(len(data))
+	} else {
+		perm = rand.Perm(len(data))
+	}
+
 	for i := 0; i < k; i++ {
 		centroids[i] = make([]float64, len(data[perm[i]].Vector))
 		copy(centroids[i], data[perm[i]].Vector)
@@ -89,6 +97,19 @@ func KMeans(data []Point, k int, maxIter int) ([]Cluster, error) {
 		if converged {
 			break
 		}
+	}
+
+	// Calculate cohesion for each cluster
+	for i := range clusters {
+		if len(clusters[i].Points) == 0 {
+			clusters[i].Cohesion = 0
+			continue
+		}
+		totalDist := 0.0
+		for _, p := range clusters[i].Points {
+			totalDist += euclideanDistance(p.Vector, clusters[i].Centroid)
+		}
+		clusters[i].Cohesion = totalDist / float64(len(clusters[i].Points))
 	}
 
 	return clusters, nil

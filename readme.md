@@ -59,56 +59,50 @@ Eve,3,3,3,3,3
 
 ### 3. Analyze Output
 
-The tool outputs a JSON array where each object is a cluster containing a `Centroid` (the "average" profile of that cluster) and the list of `Points` (people) in that cluster.
+The tool outputs a JSON array containing the identified clusters. Each cluster object provides the following details:
+
+-   `label`: An identifier for the group derived from its top skills (e.g., "Go, Python, SQL").
+-   `center`: A map showing the average skill levels for the group.
+-   `members`: A list of the individuals belonging to the group.
+-   `cohesion`: The average distance of members from the group's center. Lower values indicate a more cohesive group (members are more similar to each other).
 
 ```json
 [
   {
-    "Centroid": [
-      2,
-      2,
-      4,
-      2,
-      4
+    "label": "Go, Python, SQL",
+    "center": {
+      "CSS": 1.5,
+      "Go": 4.5,
+      "Python": 4.5,
+      "React": 1.5,
+      "SQL": 4.5
+    },
+    "members": [
+      "Alice",
+      "Bob"
     ],
-    "Points": [
-      {
-        "ID": "Charlie",
-        "Vector": [1, 2, 5, 2, 5]
-      },
-      {
-        "ID": "Diana",
-        "Vector": [2, 1, 4, 1, 4]
-      },
-      {
-        "ID": "Eve",
-        "Vector": [3, 3, 3, 3, 3]
-      }
-    ]
+    "cohesion": 1.12
   },
   {
-    "Centroid": [
-      4.5,
-      4.5,
-      1.5,
-      4.5,
-      1.5
+    "label": "CSS, React, Go",
+    "center": {
+      "CSS": 4,
+      "Go": 2,
+      "Python": 2,
+      "React": 4,
+      "SQL": 2
+    },
+    "members": [
+      "Charlie",
+      "Diana",
+      "Eve"
     ],
-    "Points": [
-      {
-        "ID": "Alice",
-        "Vector": [5, 4, 1, 5, 2]
-      },
-      {
-        "ID": "Bob",
-        "Vector": [4, 5, 2, 4, 1]
-      }
-    ]
+    "cohesion": 1.79
   }
 ]
 ```
 
 **Interpretation:**
 
-*   **Cluster 1 (Top)**: The centroid has high values for the 3rd and 5th skills (React, CSS). This group contains Charlie, Diana, and Eve (who is a generalist but closer to this group). This represents the **Frontend/Fullstack** group.
-*   **Cluster 2 (Bottom)**: The centroid has high values for the 1st, 2nd, and 4th skills (Go, Python, SQL). This group contains Alice and Bob. This represents the **Backend** group.
+*   **Go, Python, SQL**: The center shows high values for Go, Python, and SQL. This group contains Alice and Bob. This represents the **Backend** group.
+*   **CSS, React, Go**: The center shows high values for React and CSS. This group contains Charlie, Diana, and Eve (who is a generalist but closer to this group). This represents the **Frontend/Fullstack** group.
