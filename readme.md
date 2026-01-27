@@ -61,7 +61,7 @@ Eve,3,3,3,3,3
 
 The tool outputs a JSON array containing the identified clusters. Each cluster object provides the following details:
 
--   `label`: An identifier for the group (e.g., "Group 1").
+-   `label`: An identifier for the group derived from its top skills (e.g., "Go, Python, SQL").
 -   `center`: A map showing the average skill levels for the group.
 -   `members`: A list of the individuals belonging to the group.
 -   `cohesion`: The average distance of members from the group's center. Lower values indicate a more cohesive group (members are more similar to each other).
@@ -69,7 +69,7 @@ The tool outputs a JSON array containing the identified clusters. Each cluster o
 ```json
 [
   {
-    "label": "Group 1",
+    "label": "Go, Python, SQL",
     "center": {
       "CSS": 1.5,
       "Go": 4.5,
@@ -84,7 +84,7 @@ The tool outputs a JSON array containing the identified clusters. Each cluster o
     "cohesion": 1.12
   },
   {
-    "label": "Group 2",
+    "label": "CSS, React, Go",
     "center": {
       "CSS": 4,
       "Go": 2,
@@ -104,5 +104,5 @@ The tool outputs a JSON array containing the identified clusters. Each cluster o
 
 **Interpretation:**
 
-*   **Group 1**: The center shows high values for Go, Python, and SQL. This group contains Alice and Bob. This represents the **Backend** group.
-*   **Group 2**: The center shows high values for React and CSS. This group contains Charlie, Diana, and Eve (who is a generalist but closer to this group). This represents the **Frontend/Fullstack** group.
+*   **Go, Python, SQL**: The center shows high values for Go, Python, and SQL. This group contains Alice and Bob. This represents the **Backend** group.
+*   **CSS, React, Go**: The center shows high values for React and CSS. This group contains Charlie, Diana, and Eve (who is a generalist but closer to this group). This represents the **Frontend/Fullstack** group.

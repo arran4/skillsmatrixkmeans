@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/example/skills-matrix-kmeans/internal/kmeans"
 )
@@ -49,7 +51,7 @@ func run(inputFile, outputFile string, k int, rng *rand.Rand) error {
 	}
 
 	var outputClusters []OutputCluster
-	for i, c := range clusters {
+	for _, c := range clusters {
 		center := make(map[string]float64)
 		for j, val := range c.Centroid {
 			if j < len(headers) {
@@ -63,7 +65,7 @@ func run(inputFile, outputFile string, k int, rng *rand.Rand) error {
 		}
 
 		outputClusters = append(outputClusters, OutputCluster{
-			Label:    fmt.Sprintf("Group %d", i+1),
+			Label:    generateLabel(center),
 			Center:   center,
 			Members:  members,
 			Cohesion: c.Cohesion,
@@ -138,4 +140,33 @@ func readCSV(filename string) ([]kmeans.Point, []string, error) {
 	}
 
 	return points, headers, nil
+}
+
+func generateLabel(center map[string]float64) string {
+	type kv struct {
+		Key   string
+		Value float64
+	}
+
+	var ss []kv
+	for k, v := range center {
+		ss = append(ss, kv{k, v})
+	}
+
+	sort.Slice(ss, func(i, j int) bool {
+		if ss[i].Value == ss[j].Value {
+			return ss[i].Key < ss[j].Key
+		}
+		return ss[i].Value > ss[j].Value
+	})
+
+	var topSkills []string
+	for i, kv := range ss {
+		if i >= 3 {
+			break
+		}
+		topSkills = append(topSkills, kv.Key)
+	}
+
+	return strings.Join(topSkills, ", ")
 }
