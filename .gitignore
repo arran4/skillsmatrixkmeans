@@ -1,5 +1,5 @@
 # Binaries
-skills-kmeans
+/skills-kmeans
 *.exe
 *.exe~
 *.dll
